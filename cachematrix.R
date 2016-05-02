@@ -6,41 +6,32 @@
 # or to caclulate the inverse if necessary.
 
 
-# 1. Make a simple matrix to use as a test case. Call it x.
-
-x<-matrix(1:4,2,2)
-
-# 2. Calculate the inverse of x, so that we will know what to expect when we ask R to return this inverse matrix.
-
-solve(x)
-
-# 3. Create a function that takes the inverse of (i.e., "solves") matrix x.
+# 1. Create a function that creates a vector to store the cached solution to x.
 
 makecacheSolve <- function(x = matrix()) {
- y<<-solve(x) }
+ m<-NULL
+ set <- function(y) {
+                x <<- y
+                m <<- NULL
+        }
+        get <- function() x
+        setinverse <- function(inverse) m <<- solve(x)
+        getinverse <- function() m
+        list(set = set, get = get,
+             setinverse = setinverse,
+             getinverse = getinverse)
+}        
 
-# 4. Create a function that: (a) returns the inverse of matrix x if it has been calculated already with a message explaining this, or (b) calculates the inverse of matrix x if this solution does not already exist.
+# 2. Create a function that: (a) returns the inverse of matrix x if it has been calculated already with a message explaining this, or (b) calculates the inverse of matrix x if this solution does not already exist.
 
 cacheSolve <- function(x, ...) {
-        inv <- y
-        if(!is.null(inv)) {
+        m <- x$getinverse()
+        if(!is.null(m)) {
                 message("Since the inverse of x has already been calculated and cached, I will return it to you.")
-                return(inv)
+                return(m)
         }
-        y<-solve(x)
-        y
+        data <- x$get()
+        m <- solve(data, ...)
+        x$setinverse(m)
+        m
 }
-
-# 5. Run a test case of the first function on x.
-
-makecacheSolve(x)
-
-# 6. Run a test case of the second function on x, when the first function has already been run (i.e., the inverse is already calculated). See that the message from step #4 and answer equal to step #2 are returned.
-
-cacheSolve(x)
-
-# 7. Run a test case of the second function on x, when the first function has already been run (i.e., the inverse is already calculated). See that the answer equal to step #2 is returned.
-
-y<-NULL
-
-cacheSolve(x)
